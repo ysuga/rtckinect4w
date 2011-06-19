@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="shift_jis"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="User property"
+	>
+	<UserMacro
+		Name="kinect_home"
+		Value="&quot;C:\Program Files (x86)\Microsoft Research KinectSDK&quot;"
+	/>
+	<UserMacro
+		Name="user_inc"
+		Value="$(kinect_home)\inc"
+	/>
+	<UserMacro
+		Name="user_libdir"
+		Value="$(kinect_home)\lib"
+	/>
+	<UserMacro
+		Name="user_lib"
+		Value="MSRKinectNUI.lib"
+	/>
+	<UserMacro
+		Name="user_libd"
+		Value="MSRKinectNUI.lib"
+	/>
+
+
+</VisualStudioPropertySheet>
+
