@@ -27,13 +27,19 @@
         <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="enable_depth" rtc:unit="" rtc:defaultValue="1" rtc:type="int" rtc:name="enable_depth">
             <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
         </rtc:Configuration>
-        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="width" rtc:unit="" rtc:defaultValue="640" rtc:type="int" rtc:name="width">
+        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="camera_width" rtc:unit="" rtc:defaultValue="640" rtc:type="int" rtc:name="camera_width">
             <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
         </rtc:Configuration>
-        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="height" rtc:unit="" rtc:defaultValue="480" rtc:type="int" rtc:name="height">
+        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="camera_height" rtc:unit="" rtc:defaultValue="480" rtc:type="int" rtc:name="camera_height">
             <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
         </rtc:Configuration>
-        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="player_index" rtc:unit="" rtc:defaultValue="0" rtc:type="int" rtc:name="player_index">
+      <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="depth_width" rtc:unit="" rtc:defaultValue="320" rtc:type="int" rtc:name="depth_width">
+        <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
+      </rtc:Configuration>
+      <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="depth_height" rtc:unit="" rtc:defaultValue="240" rtc:type="int" rtc:name="depth_height">
+        <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
+      </rtc:Configuration>
+      <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="player_index" rtc:unit="" rtc:defaultValue="0" rtc:type="int" rtc:name="player_index">
             <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
         </rtc:Configuration>
     </rtc:ConfigurationSet>

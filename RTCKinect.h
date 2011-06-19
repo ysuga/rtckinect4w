@@ -245,16 +245,28 @@ class RTCKinect
   int m_enable_depth;
   /*!
    * 
-   * - Name:  width
+   * - Name:  camera_width
    * - DefaultValue: 640
    */
-  int m_width;
+  int m_camera_width;
   /*!
    * 
-   * - Name:  height
+   * - Name:  camera_height
    * - DefaultValue: 480
    */
-  int m_height;
+  int m_camera_height;
+  /*!
+   * 
+   * - Name:  depth_width
+   * - DefaultValue: 320
+   */
+  int m_depth_width;
+  /*!
+   * 
+   * - Name:  depth_height
+   * - DefaultValue: 240
+   */
+  int m_depth_height;  
   /*!
    * 
    * - Name:  player_index
@@ -326,7 +338,12 @@ class RTCKinect
   
   // </rtc-template>
 	HANDLE m_pVideoStreamHandle;
+	HANDLE m_pDepthStreamHandle;
 
+	HRESULT WriteColorImage();
+	HRESULT WriteDepthImage();
+	HRESULT WriteElevation();
+	HRESULT WriteSkeleton();
 };
 
 
