@@ -143,7 +143,13 @@ RTC::ReturnCode_t RTCKinect::onShutdown(RTC::UniqueId ec_id)
 RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
 {
     /**
-	 * TODO: ここでコンフィグに合わせて機能の初期化を変える
+	 * The configured values should be reflected to the initialization process.
+	 *
+	 * m_enable_camera -> camera image
+	 * m_enable_depth  -> depth image
+	 * m_player_index  -> player index detection
+	 *
+	 * important: if player indexing is enabled, depth map image is limited up to 320x240
 	 */
 
 	DWORD dwFlag = NUI_INITIALIZE_FLAG_USES_SKELETON;
@@ -158,7 +164,8 @@ RTC::ReturnCode_t RTCKinect::onActivated(RTC::UniqueId ec_id)
 		}
 	}
 
-	HRESULT hr = NuiInitialize(dwFlag);
+
+	HRESULT hr = NuiInitialize(dwFlag); 
     if( FAILED( hr ) )
     {
 		std::cout << "NUI Initialize Failed." << std::endl;
@@ -224,6 +231,21 @@ RTC::ReturnCode_t RTCKinect::onDeactivated(RTC::UniqueId ec_id)
 	return RTC::RTC_OK;
 }
 
+
+/**
+ * Wriing camera image to imgae port
+ *
+ * Color space conversion should be accelerated
+ * (OpenCV or Intel Performance Primitive Library 
+ *  would be useful for this case. OpenMP will 
+ * also useful for this kind of processing)
+ *
+ *
+ * Aquired Image by NUI     -> BGRW (4 bytes)
+ * RTC::CameraImage struct  -> BGR (3 bytes)
+ *
+ */
+
 HRESULT RTCKinect::WriteColorImage(void)
 {
 	static const long TIMEOUT_IN_MILLI = 100;
@@ -264,6 +286,15 @@ HRESULT RTCKinect::WriteColorImage(void)
 	return S_OK;
 }
 
+/**
+ * Writing Depth Image to the Outport
+ *
+ * In this release the depth map is converted to the gray scale image.
+ * But in the future, the depth map should have its own data type, 
+ * because the aquired data includes not only depth data [mm]
+ * but also the tracking user id!
+ *
+ */
 HRESULT RTCKinect::WriteDepthImage(void)
 {
 	static const long TIMEOUT_IN_MILLI = 100;
@@ -311,6 +342,10 @@ HRESULT RTCKinect::WriteDepthImage(void)
 	return S_OK;
 }
 
+
+/**
+ * Controlling Elevation Motor
+ */
 HRESULT RTCKinect::WriteElevation()
 {
 	HRESULT hr;
@@ -330,11 +365,73 @@ HRESULT RTCKinect::WriteElevation()
 	return S_OK;
 }
 
+void operator<<=(Kinect::Vector4& dst, ::Vector4& src) {
+	dst.v[0] = src.v[0];
+	dst.v[1] = src.v[1];
+	dst.v[2] = src.v[2];
+	dst.v[3] = src.v[3];
+}
+/*
+struct _NUI_SKELETON_DATA {
+    NUI_SKELETON_TRACKING_STATE eTrackingState;
+    DWORD dwTrackingID;
+    DWORD dwEnrollmentIndex;
+    DWORD dwUserIndex;
+    Vector4 Position;
+    Vector4 SkeletonPositions[NUI_SKELETON_POSITION_COUNT];
+    NUI_SKELETON_POSITION_TRACKING_STATE 
+        eSkeletonPositionTrackingState[NUI_SKELETON_POSITION_COUNT];
+    DWORD dwQualityFlags;
+*/
+void operator<<=(Kinect::NuiSkeletonData& dst, ::NUI_SKELETON_DATA& src) {
+	dst.trackingID = src.dwTrackingID;
+	dst.trackingState = (Kinect::NUI_SKELETON_TRACKING_STATE)src.eTrackingState;
+	dst.enrollmentIndex = src.dwEnrollmentIndex;
+	dst.userIndex = src.dwUserIndex;
+	dst.position <<= src.Position;
+	for(int i = 0;i < 20;i++) {
+		dst.skeletonPositions[i] <<= src.SkeletonPositions[i];
+		dst.eSkeletonPositionTrackingState[i]  = (Kinect::NUI_SKELETON_POSITION_TRACKING_STATE)src.eSkeletonPositionTrackingState[i];
+	}
+	dst.qualityFlags = src.dwQualityFlags;
+}
 
+
+/**
+ *
+ */
 HRESULT RTCKinect::WriteSkeleton()
 {
-	// TODO: ここにスケルトンデータ書き込みを実装
+	static const long TIMEOUT_IN_MILI = 100;
 
+	NUI_SKELETON_FRAME skeletonFrame;
+	HRESULT ret = NuiSkeletonGetNextFrame(TIMEOUT_IN_MILI, & skeletonFrame);
+	if(FAILED(ret)) {
+		return ret;
+	}
+
+	/*
+	    LARGE_INTEGER liTimeStamp;
+    DWORD dwFrameNumber;
+    DWORD dwFlags;
+    Vector4 vFloorClipPlane;
+    Vector4 vNormalToGravity;
+    NUI_SKELETON_DATA SkeletonData[NUI_SKELETON_COUNT];
+} NUI_SKELETON_FRAME;
+   */
+	m_skeleton.frameNumber = (long)skeletonFrame.dwFrameNumber;
+	//m_skeleton.timeStamp   = (long)skeletonFrame.liTimeStamp;
+	m_skeleton.flags       = skeletonFrame.dwFlags;
+	m_skeleton.floorClipPlane <<= skeletonFrame.vFloorClipPlane;
+	m_skeleton.normalToGravity <<= skeletonFrame.vNormalToGravity;
+
+	// int NUI_SKELETON_COUNT=6; Undefined?
+	m_skeleton.skeletonData.length(6);
+	for(int i = 0;i < 6;i++) {
+		m_skeleton.skeletonData[i] <<= skeletonFrame.SkeletonData[i];
+	}
+	m_skeletonOut.write();
+	
 	return S_OK;
 }
 
@@ -353,6 +450,10 @@ RTC::ReturnCode_t RTCKinect::onExecute(RTC::UniqueId ec_id)
 	}
 
 	if( FAILED(WriteElevation()) ) {
+		return RTC::RTC_ERROR;
+	}
+
+	if( FAILED(WriteSkeleton()) ) {
 		return RTC::RTC_ERROR;
 	}
 

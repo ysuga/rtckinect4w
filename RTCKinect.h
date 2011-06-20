@@ -303,10 +303,10 @@ class RTCKinect
   /*!
    */
   OutPort<TimedLong> m_currentElevationOut;
-  NuiSkeletonData m_skeleton;
+  NuiSkeletonFrame m_skeleton;
   /*!
    */
-  OutPort<NuiSkeletonData> m_skeletonOut;
+  OutPort<NuiSkeletonFrame> m_skeletonOut;
   SoundSourceLocation m_soundSource;
   /*!
    */

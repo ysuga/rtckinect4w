@@ -62,11 +62,19 @@ module Kinect {
      long enrollmentIndex;
      long userIndex;
      Vector4 position;
-     Vector4 skeletonPositions;
+     Vector4 skeletonPositions[20];
      NUI_SKELETON_POSITION_TRACKING_STATE eSkeletonPositionTrackingState[20];
      long qualityFlags;
    };
 
+   struct NuiSkeletonFrame {
+     long timeStamp;
+     long frameNumber;
+     long flags;
+     Vector4 floorClipPlane;
+     Vector4 normalToGravity;
+     sequence<NuiSkeletonData> skeletonData;
+   };
 
    struct SoundSourceLocation {
      double angle;
